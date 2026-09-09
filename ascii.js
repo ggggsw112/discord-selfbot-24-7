@@ -1,0 +1,8 @@
+// ASCII Art for the help menu
+module.exports = {
+  helpArt: `
+⠀⠀⢀⠀⠀⠀⠀⢠⠀⠀⢠⠀⠀⠀⠀⠀
+⠀⠀⠱⡀⠀⠀⡇⢸⠀⠀⢀⢠⠀⢠⠀⠀
+⠀⠀⠀⠘⢦⡀⣇⢸⠀⠀⠀⡠⠖⠀⠀⠀
+  `,
+};
