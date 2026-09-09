@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits, ActivityType, ChannelType, EmbedBuilder } = require('discord.js');
 const { DISCORD_TOKEN, VOICE_CHANNEL_ID, SPOTIFY_TRACK, SPOTIFY_ARTIST, AUTO_DEAFEN } = require('./config');
+const { helpArt } = require('./ascii');
 
 class SelfBot extends Client {
   constructor() {
@@ -133,16 +134,11 @@ class SelfBot extends Client {
 
   async sendHelpEmbed(message) {
     try {
-      const artAscii = `
-⠀⠀⢀⠀⠀⠀⠀⢠⠀⠀⢠⠀⠀⠀⠀⠀
-⠀⠀⠱⡀⠀⠀⡇⢸⠀⠀⢀⢠⠀⢠⠀⠀
-⠀⠀⠀⠘⢦⡀⣇⢸⠀⠀⠀⡠⠖⠀⠀⠀`;
-
       const helpEmbed = new EmbedBuilder()
         .setColor('#0099ff')
         .setDescription(`
 \`\`\`
-${artAscii}
+${helpArt}
 \`\`\`
 
 🙏🏻 **.help** - Show this menu
