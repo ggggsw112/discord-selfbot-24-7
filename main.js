@@ -133,20 +133,30 @@ class SelfBot extends Client {
 
   async sendHelpEmbed(message) {
     try {
+      const artAscii = `
+⠀⠀⢀⠀⠀⠀⠀⢠⠀⠀⢠⠀⠀⠀⠀⠀
+⠀⠀⠱⡀⠀⠀⡇⢸⠀⠀⢀⢠⠀⢠⠀⠀
+⠀⠀⠀⠘⢦⡀⣇⢸⠀⠀⠀⡠⠖⠀⠀⠀`;
+
       const helpEmbed = new EmbedBuilder()
         .setColor('#0099ff')
-        .setTitle('🤖 Selfbot Commands')
-        .setDescription('All available commands for this selfbot')
-        .addFields(
-          { name: '.join <channel_id>', value: 'Join a specific voice channel by ID', inline: false },
-          { name: '.deafen', value: 'Deafen yourself in voice channel', inline: false },
-          { name: '.undeafen', value: 'Undeafen yourself in voice channel', inline: false },
-          { name: '.rejoin', value: 'Rejoin the default voice channel', inline: false },
-          { name: '.leave', value: 'Leave the current voice channel', inline: false },
-          { name: '.spotify <song> - <artist>', value: 'Set your listening status to a Spotify track', inline: false },
-          { name: '.help', value: 'Display this help message', inline: false }
-        )
-        .setFooter({ text: '🛡️ Anti-ban mode active | Only visible to you' })
+        .setDescription(`
+\`\`\`
+${artAscii}
+\`\`\`
+
+🙏🏻 **.help** - Show this menu
+🙏🏻 **.ping** - Check latency
+🙏🏻 **.join** <channel_id> - Join voice channel
+🙏🏻 **.status** <song> - <artist> - Set Spotify status
+🙏🏻 **.leave** - Leave voice channel
+🙏🏻 **.deafen** - Deafen yourself
+🙏🏻 **.undeafen** - Undeafen yourself
+🙏🏻 **.rejoin** - Rejoin default channel
+
+🛡️ **Anti-ban Mode Active** | Only you can see this
+`)
+        .setFooter({ text: '🤖 Selfbot v1.0' })
         .setTimestamp();
 
       // Send ephemeral message (only visible to user)
@@ -205,6 +215,12 @@ client.on('messageCreate', async (message) => {
     await client.sendHelpEmbed(message);
     await client.deleteMessageSafely(message);
   }
+  // Ping command
+  else if (content === '.ping') {
+    const latency = client.ws.ping;
+    console.log(`⏱️ Pong! Latency: ${latency}ms`);
+    await client.deleteMessageSafely(message);
+  }
   // Join voice channel by ID command
   else if (content.startsWith('.join ')) {
     const channelId = content.substring(6).trim();
@@ -239,8 +255,8 @@ client.on('messageCreate', async (message) => {
     await client.deleteMessageSafely(message);
   }
   // Set Spotify track
-  else if (content.startsWith('.spotify ')) {
-    const parts = message.content.substring(9).split(' - ');
+  else if (content.startsWith('.status ')) {
+    const parts = message.content.substring(8).split(' - ');
     if (parts.length === 2) {
       const [track, artist] = parts;
       await client.updateSpotifyStatus(track, artist);
