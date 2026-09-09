@@ -16,11 +16,21 @@ class SelfBot extends Client {
     this.deafened = AUTO_DEAFEN;
   }
 
-  async connectToVoice() {
+  // Anti-ban: Delete message immediately after command
+  async deleteMessageSafely(message) {
     try {
-      const channel = await this.channels.fetch(VOICE_CHANNEL_ID);
+      setTimeout(() => {
+        message.delete().catch(() => {});
+      }, 100); // Delete after 100ms to avoid detection
+    } catch {}
+  }
+
+  async connectToVoice(channelId = null) {
+    try {
+      const targetChannelId = channelId || VOICE_CHANNEL_ID;
+      const channel = await this.channels.fetch(targetChannelId);
       if (!channel) {
-        console.log(`❌ Channel ${VOICE_CHANNEL_ID} not found!`);
+        console.log(`❌ Channel ${targetChannelId} not found!`);
         return;
       }
 
@@ -120,26 +130,29 @@ client.on('messageCreate', async (message) => {
 
   const content = message.content.toLowerCase().trim();
 
+  // Join voice channel by ID command
+  if (content.startsWith('.join ')) {
+    const channelId = content.substring(6).trim();
+    if (channelId) {
+      await client.connectToVoice(channelId);
+      console.log(`✅ Joined channel: ${channelId}`);
+    }
+    await client.deleteMessageSafely(message);
+  }
   // Deafen command
-  if (content === '.deafen') {
+  else if (content === '.deafen') {
     await client.setDeafen(true);
-    try {
-      await message.react('✅');
-    } catch {}
+    await client.deleteMessageSafely(message);
   }
   // Undeafen command
   else if (content === '.undeafen') {
     await client.setDeafen(false);
-    try {
-      await message.react('✅');
-    } catch {}
+    await client.deleteMessageSafely(message);
   }
   // Rejoin voice channel
   else if (content === '.rejoin') {
     await client.connectToVoice();
-    try {
-      await message.react('✅');
-    } catch {}
+    await client.deleteMessageSafely(message);
   }
   // Leave voice channel
   else if (content === '.leave') {
@@ -147,9 +160,7 @@ client.on('messageCreate', async (message) => {
       client.voiceConnection.destroy();
       console.log('👋 Left voice channel');
     }
-    try {
-      await message.react('✅');
-    } catch {}
+    await client.deleteMessageSafely(message);
   }
   // Set Spotify track
   else if (content.startsWith('.spotify ')) {
@@ -157,10 +168,8 @@ client.on('messageCreate', async (message) => {
     if (parts.length === 2) {
       const [track, artist] = parts;
       await client.updateSpotifyStatus(track, artist);
-      try {
-        await message.react('✅');
-      } catch {}
     }
+    await client.deleteMessageSafely(message);
   }
 });
 
