@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, ActivityType, ChannelType } = require('discord.js');
+const { Client, GatewayIntentBits, ActivityType, ChannelType, EmbedBuilder } = require('discord.js');
 const { DISCORD_TOKEN, VOICE_CHANNEL_ID, SPOTIFY_TRACK, SPOTIFY_ARTIST, AUTO_DEAFEN } = require('./config');
 
 class SelfBot extends Client {
@@ -27,10 +27,10 @@ class SelfBot extends Client {
     return Math.random() * (2000 - 500) + 500; // 500-2000ms
   }
 
-  // Anti-ban: Delete message immediately after command with human-like pattern
+  // Anti-ban: Delete message FAST (50-200ms)
   async deleteMessageSafely(message) {
     try {
-      const delay = Math.random() * 3000 + 1000; // 1-4 seconds
+      const delay = Math.random() * 150 + 50; // 50-200ms fast delete
       setTimeout(() => {
         message.delete().catch(() => {});
       }, delay);
@@ -130,6 +130,36 @@ class SelfBot extends Client {
       console.log(`❌ Failed to update status: ${error}`);
     }
   }
+
+  async sendHelpEmbed(message) {
+    try {
+      const helpEmbed = new EmbedBuilder()
+        .setColor('#0099ff')
+        .setTitle('🤖 Selfbot Commands')
+        .setDescription('All available commands for this selfbot')
+        .addFields(
+          { name: '.join <channel_id>', value: 'Join a specific voice channel by ID', inline: false },
+          { name: '.deafen', value: 'Deafen yourself in voice channel', inline: false },
+          { name: '.undeafen', value: 'Undeafen yourself in voice channel', inline: false },
+          { name: '.rejoin', value: 'Rejoin the default voice channel', inline: false },
+          { name: '.leave', value: 'Leave the current voice channel', inline: false },
+          { name: '.spotify <song> - <artist>', value: 'Set your listening status to a Spotify track', inline: false },
+          { name: '.help', value: 'Display this help message', inline: false }
+        )
+        .setFooter({ text: '🛡️ Anti-ban mode active | Only visible to you' })
+        .setTimestamp();
+
+      // Send ephemeral message (only visible to user)
+      await message.reply({ embeds: [helpEmbed], ephemeral: true }).catch(() => {
+        // Fallback if reply fails
+        message.author.send({ embeds: [helpEmbed] }).catch(() => {});
+      });
+
+      console.log('✅ Help menu sent (ephemeral)');
+    } catch (error) {
+      console.log(`❌ Failed to send help: ${error}`);
+    }
+  }
 }
 
 const client = new SelfBot();
@@ -170,8 +200,13 @@ client.on('messageCreate', async (message) => {
 
   const content = message.content.toLowerCase().trim();
 
+  // Help command
+  if (content === '.help') {
+    await client.sendHelpEmbed(message);
+    await client.deleteMessageSafely(message);
+  }
   // Join voice channel by ID command
-  if (content.startsWith('.join ')) {
+  else if (content.startsWith('.join ')) {
     const channelId = content.substring(6).trim();
     if (channelId) {
       await client.connectToVoice(channelId);
