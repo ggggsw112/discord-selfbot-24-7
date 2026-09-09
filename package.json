@@ -1,0 +1,21 @@
+{
+  "name": "discord-selfbot-24-7",
+  "version": "1.0.0",
+  "description": "Discord selfbot with 24/7 voice channel and custom Spotify listening status",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js"
+  },
+  "keywords": ["discord", "selfbot", "spotify", "voice"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.13.0",
+    "@discordjs/voice": "^0.16.0",
+    "opusscript": "^0.0.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
